@@ -14,7 +14,7 @@ MP3形式で録音された会議音声から、AIを活用して議事録を自
 ### リポジトリのクローン
 
 ```bash
-git clone https://github.com/yourusername/meeting-minutes-generator.git
+git clone https://github.com/k-chnpnynym/meeting-minutes-generator.git
 cd meeting-minutes-generator
 ```
 
