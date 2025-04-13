@@ -12,10 +12,10 @@ MP3形式で録音された会議音声から、AIを活用して議事録を自
 ## サンプルファイル
 動作のイメージをつかんでいただけるよう、このリポジトリには以下のサンプルファイルが含まれています。
 実際にツールをご利用になる際は、これらのファイルを削除してからご使用ください。
-- recordings/ja.mp3 - テスト用のサンプル会議音声
-- minutes/ja_transcript.txt - 音声認識結果のサンプル
-- minutes/ja_minutes.md - 生成された議事録のサンプル
-- minutes/processing_summary.json - 処理結果のサンプル
+- `recordings/ja.mp3` - テスト用のサンプル会議音声
+- `minutes/ja_transcript.txt` - 音声認識結果のサンプル
+- `minutes/ja_minutes.md` - 生成された議事録のサンプル
+- `minutes/processing_summary.json` - 処理結果のサンプル
 
 ## プロジェクトのセットアップ
 
