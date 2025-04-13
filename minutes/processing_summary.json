@@ -1,10 +1,10 @@
 [
     {
-        "input_file": "C:\\python\\api_lesson\\20250412_zemi_my_app\\recordings\\ja.mp3",
+        "input_file": "C:\\path\\to\\project\\recordings\\ja.mp3",
         "timestamp": "2025-04-13T09:49:26.289798",
         "success": true,
-        "transcript_path": "C:\\python\\api_lesson\\20250412_zemi_my_app\\minutes\\ja_transcript.txt",
-        "minutes_path": "C:\\python\\api_lesson\\20250412_zemi_my_app\\minutes\\ja_minutes.md",
+        "transcript_path": "C:\\path\\to\\project\\minutes\\ja_transcript.txt",
+        "minutes_path": "C:\\path\\to\\project\\minutes\\ja_minutes.md",
         "error": null
     }
 ]
