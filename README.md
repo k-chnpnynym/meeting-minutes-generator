@@ -130,11 +130,6 @@ python claude_minutes_generator.py
   pip install --upgrade pip
   ```
 
-### ClaudeのOverloadedエラー
-
-- エラーが出た場合はリクエストを再試行
-- APIリクエストの間隔を空ける
-
 ## 注意事項
 
 - 各APIの利用には、それぞれのプロバイダーから取得したAPIキーが必要です
