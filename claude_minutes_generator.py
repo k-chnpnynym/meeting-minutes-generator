@@ -45,45 +45,46 @@ class EnhancedMinutesGenerator:
         self.claude_model = "claude-3-5-sonnet-20241022"  # または利用可能な最新モデル
 
     def transcribe_audio(self, audio_path: Path) -> str:
-        """音声ファイルをテキストに変換する
+	    """音声ファイルをテキストに変換する（非同期処理）
 
-        Args:
-            audio_path (Path): 音声ファイルのパス
+	    Args:
+	        audio_path (Path): 音声ファイルのパス
 
-        Returns:
-            str: 変換されたテキスト
-        """
-        print(f"音声ファイル「{audio_path.name}」を認識中...")
+	    Returns:
+	        str: 変換されたテキスト
+	    """
+	    print(f"音声ファイル「{audio_path.name}」を非同期で認識中...")
 
-        # 音声ファイルの読み込み
-        with open(audio_path, "rb") as audio_file:
-            content = audio_file.read()
+	    # 音声ファイルの読み込み
+	    with open(audio_path, "rb") as audio_file:
+	        content = audio_file.read()
 
-        # 音声認識リクエストの設定
-        audio = speech.RecognitionAudio(content=content)
-        config = speech.RecognitionConfig(
-            encoding=speech.RecognitionConfig.AudioEncoding.MP3,
-            language_code="ja-JP",
-            enable_automatic_punctuation=True,
-            # 必要に応じて以下のオプションを追加
-            # audio_channel_count=2,  # ステレオ録音の場合
-            # use_enhanced=True,      # 拡張音声認識モデルを使用
-        )
+	    # 音声認識リクエストの設定
+	    audio = speech.RecognitionAudio(content=content)
+	    config = speech.RecognitionConfig(
+	        encoding=speech.RecognitionConfig.AudioEncoding.MP3,
+	        language_code="ja-JP",
+	        enable_automatic_punctuation=True,
+	        # audio_channel_count=2,  # ステレオ対応が必要なら有効化
+	    )
 
-        try:
-            # 音声認識の実行
-            response = self.speech_client.recognize(config=config, audio=audio)
+	    try:
+	        # 非同期音声認識の実行
+	        operation = self.speech_client.long_running_recognize(config=config, audio=audio)
 
-            # レスポンスの処理
-            transcription = ""
-            for result in response.results:
-                transcription += result.alternatives[0].transcript + "\n"
+	        print("Google Cloud による非同期処理を待機中（最大600秒）...")
+	        response = operation.result(timeout=600)
 
-            return transcription
+	        # レスポンスの処理
+	        transcription = ""
+	        for result in response.results:
+	            transcription += result.alternatives[0].transcript + "\n"
 
-        except Exception as e:
-            print(f"音声認識エラー: {str(e)}")
-            return f"音声認識エラー: {str(e)}"
+	        return transcription
+
+	    except Exception as e:
+	        print(f"音声認識エラー（非同期）: {str(e)}")
+	        return f"音声認識エラー（非同期）: {str(e)}"
 
     def generate_minutes_with_claude(self, transcript: str) -> str:
         """Claudeを使って議事録を生成する
