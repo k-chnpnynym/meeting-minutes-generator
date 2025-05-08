@@ -4,7 +4,7 @@ MP3形式で録音された会議音声から、AIを活用して議事録を自
 
 ## 機能
 
-* MP3音声ファイルのテキスト変換（最大4時間の音声まで対応） ✅
+* MP3音声ファイルのテキスト変換（最大4時間の音声まで対応）
 * AIによる議事録の自動生成
 * 会議の基本情報、議題、議論内容、決定事項などの抽出
 * マークダウン形式での出力
@@ -68,7 +68,7 @@ ANTHROPIC_API_KEY=あなたのClaudeAPIキー
 3. 認証情報ページで API キーを作成
 4. セキュリティのため、API キーの使用制限を設定（Speech-to-Text APIのみに制限）
 
-> ✅ 本ツールでは、Google Cloud Speech-to-Text の `long_running_recognize()` を使用しており、最大4時間の音声認識に対応しています。
+> 本ツールでは、Google Cloud Speech-to-Text の `long_running_recognize()` を使用しており、最大4時間の音声認識に対応しています。
 
 ### Anthropic Claude API の取得
 
@@ -132,8 +132,8 @@ python claude_minutes_generator.py
 ### 音声認識が失敗する／タイムアウトする
 
 * 音声ファイルの長さに応じて `long_running_recognize(timeout=秒数)` を調整してください
-  （例：5分なら 600、30分なら 1800 など） ✅
-* 音声ファイルが10MBを超える場合、Google Cloud Storage 経由でのアップロードを検討してください ✅
+  （例：5分なら 600、30分なら 1800 など）
+* 音声ファイルが10MBを超える場合、Google Cloud Storage 経由でのアップロードを検討してください
 
 ### API キーの問題
 
