@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Dict, Any
 
 import anthropic
-import requests
 from dotenv import load_dotenv
 # 以下の2行をコメントアウト
 # from google.api_core.client_options import ClientOptions
