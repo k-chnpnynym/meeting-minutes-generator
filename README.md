@@ -1,19 +1,15 @@
 # AI議事録作成ツール
-
-MP3形式で録音された会議音声から、AIを活用して議事録を自動生成するPythonツールです。Google Cloud Speech-to-Text APIで音声をテキストに変換し、Claude AIで構造化された議事録を作成します。
+MP3形式で録音された会議音声から、AIを活用して議事録を自動生成するPythonツールです。OpenAI Whisperで音声をテキストに変換し、Claude AIで構造化された議事録を作成します。
 
 ## 機能
-
-* MP3音声ファイルのテキスト変換（最大4時間の音声まで対応）
+* MP3音声ファイルのテキスト変換（時間制限なし）
 * AIによる議事録の自動生成
 * 会議の基本情報、議題、議論内容、決定事項などの抽出
 * マークダウン形式での出力
 
 ## サンプルファイル
-
 動作のイメージをつかんでいただけるよう、このリポジトリには以下のサンプルファイルが含まれています。
 実際にツールをご利用になる際は、これらのファイルを削除してからご使用ください。
-
 * `recordings/ja.mp3` - テスト用のサンプル会議音声
 * `minutes/ja_transcript.txt` - 音声認識結果のサンプル
 * `minutes/ja_minutes.md` - 生成された議事録のサンプル
@@ -22,14 +18,12 @@ MP3形式で録音された会議音声から、AIを活用して議事録を自
 ## プロジェクトのセットアップ
 
 ### リポジトリのクローン
-
 ```bash
 git clone https://github.com/k-chnpnynym/meeting-minutes-generator.git
 cd meeting-minutes-generator
 ```
 
 ### 仮想環境の作成
-
 ```bash
 # 仮想環境を作成
 python -m venv venv
@@ -37,65 +31,45 @@ python -m venv venv
 # 仮想環境の有効化
 # Windows
 venv\Scripts\activate
+
 # macOS/Linux
 source venv/bin/activate
 ```
 
 ### 必要なライブラリのインストール
-
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 環境変数の設定
-
 プロジェクトのルートディレクトリに `.env` ファイルを作成し、以下の内容を記載します：
-
 ```
-GOOGLE_CLOUD_PROJECT_API_KEY=あなたのGoogleAPIキー
 ANTHROPIC_API_KEY=あなたのClaudeAPIキー
 ```
 
 ## API設定
 
-### Google Cloud Platform の設定
-
-1. [Google Cloud Console](https://console.cloud.google.com/) にアクセスし、プロジェクトを作成または選択
-2. 必要な API を有効化:
-
-   * API ライブラリにアクセス
-   * **Cloud Speech-to-Text API** を検索して有効化
-3. 認証情報ページで API キーを作成
-4. セキュリティのため、API キーの使用制限を設定（Speech-to-Text APIのみに制限）
-
-> 本ツールでは、Google Cloud Speech-to-Text の `long_running_recognize()` を使用しており、最大4時間の音声認識に対応しています。
-
 ### Anthropic Claude API の取得
-
 1. [Anthropic](https://console.anthropic.com/) にアクセスしてアカウントを作成
 2. API キーを生成
 3. `.env` ファイルにAPIキーを追加
 
-## 使用方法
+> 注意：このツールはOpenAI Whisperを使用するため、音声認識は完全無料でローカル処理されます。
 
+## 使用方法
 1. `recordings` フォルダにMP3ファイルを配置
 2. スクリプトを実行:
-
 ```bash
 python claude_minutes_generator.py
 ```
-
 3. 生成された議事録は `minutes` フォルダに保存:
-
    * テキスト変換結果（`*_transcript.txt`）
    * 議事録（`*_minutes.md`）
    * 処理サマリー（`processing_summary.json`）
 
 ## 出力例
-
 ```markdown
 # プロジェクト進捗会議
-
 **日時**: 2025年4月12日 10:30  
 **場所**: 会議室A  
 **参加者**: 佐藤、鈴木、田中、山本、渡辺
@@ -120,7 +94,6 @@ python claude_minutes_generator.py
 ## 関連リソース
 
 ### Anthropic Claude API ドキュメント
-
 * [メインドキュメント](https://docs.anthropic.com/)
 * [API リファレンス](https://docs.anthropic.com/claude/reference/)
 * [Python SDKドキュメント](https://github.com/anthropics/anthropic-sdk-python)
@@ -129,32 +102,30 @@ python claude_minutes_generator.py
 
 ## トラブルシューティング
 
-### 音声認識が失敗する／タイムアウトする
+### よくある警告メッセージ
+音声認識中に「FP16 is not supported on CPU; using FP32 instead」という警告が表示される場合がありますが、これは正常な動作です。CPUでの処理のため精度を落として実行していることを示しています。
 
-* 音声ファイルの長さに応じて `long_running_recognize(timeout=秒数)` を調整してください
-  （例：5分なら 600、30分なら 1800 など）
-* 音声ファイルが10MBを超える場合、Google Cloud Storage 経由でのアップロードを検討してください
+### 音声認識が遅い場合
+* CPUで処理するため時間がかかることがあります
+* より小さなWhisperモデル（「base」から「tiny」に変更）を使用することで高速化できます
+* メモリ不足のエラーが出る場合は、他のアプリケーションを閉じてください
 
 ### API キーの問題
-
-* API キーが正しく設定されていることを確認
+* Claude API キーが正しく設定されていることを確認
 * API が有効化されていることを確認
-* API キーの制限が適切に設定されていることを確認
 
 ### ライブラリのインストール問題
-
 * Python のバージョンが 3.8 以上であることを確認
 * 仮想環境がアクティブであることを確認
 * PIPの更新:
-
   ```bash
   pip install --upgrade pip
   ```
 
 ## 注意事項
-
-* 各APIの利用には、それぞれのプロバイダーから取得したAPIキーが必要です
+* Claude APIの利用には、Anthropicから取得したAPIキーが必要です
 * API の利用には各プロバイダーの利用規約が適用されます
-* API の使用には Google Cloud Platform やAnthropicの利用料金が発生する場合があります
+* Claude APIの使用にはAnthropicの利用料金が発生する場合があります
+* OpenAI Whisperは初回起動時にモデルをダウンロードするため、時間がかかります（その後は高速）
 * 仮想環境を使用することで、システム全体に影響を与えずにパッケージをインストールできます
 * 生成された議事録は完璧ではない場合があります。重要な会議では、内容を確認・編集することをお勧めします
