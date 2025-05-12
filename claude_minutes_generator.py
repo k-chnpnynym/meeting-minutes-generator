@@ -13,12 +13,16 @@ from typing import Dict, Any
 import anthropic
 import requests
 from dotenv import load_dotenv
-from google.api_core.client_options import ClientOptions
-from google.cloud import speech_v1 as speech
+# 以下の2行をコメントアウト
+# from google.api_core.client_options import ClientOptions
+# from google.cloud import speech_v1 as speech
+
+# 以下の1行を追加
+import whisper
 
 # 環境変数の読み込み
 load_dotenv()
-google_api_key = os.getenv("GOOGLE_CLOUD_PROJECT_API_KEY")
+# google_api_key = os.getenv("GOOGLE_CLOUD_PROJECT_API_KEY")  # この行をコメントアウト
 claude_api_key = os.getenv("ANTHROPIC_API_KEY")
 
 
@@ -34,9 +38,13 @@ class EnhancedMinutesGenerator:
         self.output_dir = output_dir
         self.output_dir.mkdir(exist_ok=True)
 
-        # Google Cloud Speech-to-Text APIクライアントの初期化
-        client_options = ClientOptions(api_key=google_api_key)
-        self.speech_client = speech.SpeechClient(client_options=client_options)
+        # Google Cloud Speech-to-Text APIクライアントの初期化をコメントアウト
+        # client_options = ClientOptions(api_key=google_api_key)
+        # self.speech_client = speech.SpeechClient(client_options=client_options)
+
+        # Whisperモデルの初期化を追加
+        print("Whisperモデルを読み込み中...")
+        self.whisper_model = whisper.load_model("base")
 
         # Claude APIクライアントの初期化
         self.claude_client = anthropic.Anthropic(api_key=claude_api_key)
@@ -45,46 +53,57 @@ class EnhancedMinutesGenerator:
         self.claude_model = "claude-3-5-sonnet-20241022"  # または利用可能な最新モデル
 
     def transcribe_audio(self, audio_path: Path) -> str:
-	    """音声ファイルをテキストに変換する（非同期処理）
+        """音声ファイルをテキストに変換する（Whisper使用）
 
-	    Args:
-	        audio_path (Path): 音声ファイルのパス
+        Args:
+            audio_path (Path): 音声ファイルのパス
 
-	    Returns:
-	        str: 変換されたテキスト
-	    """
-	    print(f"音声ファイル「{audio_path.name}」を非同期で認識中...")
+        Returns:
+            str: 変換されたテキスト
+        """
+        print(f"音声ファイル「{audio_path.name}」をWhisperで認識中...")
 
-	    # 音声ファイルの読み込み
-	    with open(audio_path, "rb") as audio_file:
-	        content = audio_file.read()
+        # 以下の元の処理を全てコメントアウト
+        """
+        # 音声ファイルの読み込み
+        with open(audio_path, "rb") as audio_file:
+            content = audio_file.read()
 
-	    # 音声認識リクエストの設定
-	    audio = speech.RecognitionAudio(content=content)
-	    config = speech.RecognitionConfig(
-	        encoding=speech.RecognitionConfig.AudioEncoding.MP3,
-	        language_code="ja-JP",
-	        enable_automatic_punctuation=True,
-	        # audio_channel_count=2,  # ステレオ対応が必要なら有効化
-	    )
+        # 音声認識リクエストの設定
+        audio = speech.RecognitionAudio(content=content)
+        config = speech.RecognitionConfig(
+            encoding=speech.RecognitionConfig.AudioEncoding.MP3,
+            language_code="ja-JP",
+            enable_automatic_punctuation=True,
+            # audio_channel_count=2,  # ステレオ対応が必要なら有効化
+        )
 
-	    try:
-	        # 非同期音声認識の実行
-	        operation = self.speech_client.long_running_recognize(config=config, audio=audio)
+        try:
+            # 非同期音声認識の実行
+            operation = self.speech_client.long_running_recognize(config=config, audio=audio)
 
-	        print("Google Cloud による非同期処理を待機中（最大600秒）...")
-	        response = operation.result(timeout=600)
+            print("Google Cloud による非同期処理を待機中（最大600秒）...")
+            response = operation.result(timeout=600)
 
-	        # レスポンスの処理
-	        transcription = ""
-	        for result in response.results:
-	            transcription += result.alternatives[0].transcript + "\n"
+            # レスポンスの処理
+            transcription = ""
+            for result in response.results:
+                transcription += result.alternatives[0].transcript + "\n"
 
-	        return transcription
+            return transcription
 
-	    except Exception as e:
-	        print(f"音声認識エラー（非同期）: {str(e)}")
-	        return f"音声認識エラー（非同期）: {str(e)}"
+        except Exception as e:
+            print(f"音声認識エラー（非同期）: {str(e)}")
+            return f"音声認識エラー（非同期）: {str(e)}"
+        """
+
+        # Whisperの処理を追加
+        try:
+            result = self.whisper_model.transcribe(str(audio_path), language="ja")
+            return result["text"]
+        except Exception as e:
+            print(f"Whisper音声認識エラー: {str(e)}")
+            return f"音声認識エラー: {str(e)}"
 
     def generate_minutes_with_claude(self, transcript: str) -> str:
         """Claudeを使って議事録を生成する
